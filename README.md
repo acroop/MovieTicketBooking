@@ -1,58 +1,12 @@
-# 🎬 BookMyScreen Movie Booking System Tutorial (MERN Stack)
+# React + Vite
 
-Welcome to the **BookMyScreen** tutorial series – your ultimate guide to building a **full-stack movie ticket booking system** using **React**, **Node.js**, **MongoDB**, and **Express.js**.
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-This system includes advanced features like **concurrent seat locking**, **real-time UI updates**, and **theatre-wise show grouping** – inspired by platforms like **BookMyShow**.
+Currently, two official plugins are available:
 
-> ✅ Perfect for beginners and intermediate developers looking to create a real-world, scalable, and beautifully designed full-stack project.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
----
+## Expanding the ESLint configuration
 
-<!-- ## 📺 Watch the Full Playlist:
-👉 [YouTube Playlist](#) *(Add link here)* -->
-
-
-## 📋 Flow Chart for Project Structure:
-🔗 [View Flowchart on Eraser](https://app.eraser.io/workspace/kVaH7d9rIdoOgqli1DRR?origin=share)
-
----
-
-## 🚀 Features Covered:
-
-- 🎭 **Theatre & Show Management**
-- 🎟️ **Movie Listings with Metadata**
-- 🪑 **Dynamic Seat Layouts with Real-Time Status**
-- 🧾 **Booking with Payment Simulation**
-- 🧮 **Concurrency Handling for Seat Booking**
-- 🗺️ **Grouped Showtimes by Location & Theatre**
-- 🔐 **Auth & Role-Based Access (Admin/Customer)**
-- ⚙️ **Clean Architecture**  
-  (Services, Controllers, Routes, Validations)
-- 📦 **MongoDB + Mongoose Models**
-- 💬 **Toast & Modal Feedback UI**
-
----
-
-## 🛠️ Tech Stack
-
-- **Frontend:** React.js, Tailwind CSS, Redux Toolkit
-- **Backend:** Node.js, Express.js, TypeScript
-- **Database:** MongoDB, Mongoose
-- **Deployment:** Render / Vercel *(Optional)*
-
----
-
-## 🙌 Stay Connected
-
-- 🔔 **Subscribe on YouTube:** Programming with Amrit
-- 💼 **LinkedIn:** [rajamrit15](https://www.linkedin.com/in/rajamrit15/)
-- 🧑‍💻 **GitHub:** [amritmaurya1504](https://github.com/amritmaurya1504)
-
----
-
-## 🏷️ Tags
-
-`#mernproject` `#moviebooking` `#bookmyshowclone` `#reactjs` `#nodejs`  
-`#mongodb` `#webdevelopment` `#seatbooking` `#techprojects` `#fullstackproject`
-
----
+If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
