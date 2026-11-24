@@ -1,0 +1,160 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum Role {
+  admin
+  user
+}
+
+enum SeatStatus {
+  AVAILABLE
+  BOOKED
+  BLOCKED
+}
+
+enum BookingStatus {
+  CONFIRMED
+  FAILED
+  CANCELLED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String?
+  email         String         @unique
+  role          Role           @default(user)
+  phone         String?
+  activateUser  Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  bookings      Booking[]
+  refreshTokens RefreshToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid())
+  token     String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, token])
+  @@index([token])
+  @@map("refresh_tokens")
+}
+
+model Movie {
+  id            String   @id @default(uuid())
+  title         String
+  description   String
+  duration      String
+  genre         String[]
+  releaseDate   DateTime
+  languages     String[]
+  certification String
+  posterUrl     String
+  rating        Float
+  votes         Int
+  format        String[] @default(["2D"])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  shows         Show[]
+
+  @@index([releaseDate])
+  @@index([votes])
+  @@map("movies")
+}
+
+model Theater {
+  id        String   @id @default(uuid())
+  name      String
+  location  String
+  logo      String
+  city      String
+  state     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  shows     Show[]
+
+  @@index([state])
+  @@map("theaters")
+}
+
+model Show {
+  id        String     @id @default(uuid())
+  movieId   String
+  theaterId String
+  location  String
+  format    String // "2D" | "3D" | "IMAX" | "PVR PXL" (validated in app code)
+  audioType String     @default("Dolby Atmos")
+  startTime String
+  date      String // "DD-MM-YYYY" (kept as string to preserve the API)
+  priceMap  Json       @default("{}")
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  movie     Movie      @relation(fields: [movieId], references: [id], onDelete: Cascade)
+  theater   Theater    @relation(fields: [theaterId], references: [id], onDelete: Cascade)
+  seats     ShowSeat[]
+  bookings  Booking[]
+
+  @@index([movieId, date])
+  @@index([theaterId])
+  @@map("shows")
+}
+
+// Replaces Show.seatLayout (embedded array). One row per seat per show.
+model ShowSeat {
+  id        String     @id @default(uuid())
+  showId    String
+  row       String
+  rowOrder  Int // position of the row in the layout (E=0 ... A=4)
+  number    Int
+  type      String // PREMIUM | EXECUTIVE | NORMAL
+  price     Int
+  status    SeatStatus @default(AVAILABLE)
+  bookingId String?
+  show      Show       @relation(fields: [showId], references: [id], onDelete: Cascade)
+  booking   Booking?   @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+
+  @@unique([showId, row, number])
+  @@index([showId, status])
+  @@index([bookingId])
+  @@map("show_seats")
+}
+
+model Booking {
+  id              String        @id @default(uuid())
+  bookingRef      String        @unique
+  userId          String
+  showId          String
+  seats           String[] // e.g. ["A1", "A2"], kept for API parity
+  status          BookingStatus @default(CONFIRMED)
+  bookingDateTime DateTime      @default(now())
+  paymentId       String        @unique // one Razorpay payment can only buy one booking
+  paymentMethod   String
+  bookingFee      Json // { ticketPrice, total, convenience }
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  user            User          @relation(fields: [userId], references: [id])
+  show            Show          @relation(fields: [showId], references: [id])
+  showSeats       ShowSeat[]
+
+  @@index([userId, createdAt])
+  @@index([showId])
+  @@map("bookings")
+}

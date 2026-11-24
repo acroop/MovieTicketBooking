@@ -1,12 +1,31 @@
-import { Types } from "mongoose";
-import { IMovie } from "../modules/movie/movie.interface";
-import { IShow } from "../modules/show/show.interface";
-import { IThreater } from "../modules/theater/theater.interface";
+import type { Prisma } from "../generated/prisma/client";
 
+import { PrismaClient } from "../generated/prisma/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL!,
+});
+
+const prisma = new PrismaClient({
+  adapter,
+});
+
+export default prisma;
+
+// Show type with its related Movie and Theater
+type ShowWithRelations = Prisma.ShowGetPayload<{
+  include: {
+    movie: true;
+    theater: true;
+  };
+}>;
+
+// Grouped show structure
 type GroupedShow = {
-  movie: Types.ObjectId | IMovie;
+  movie: ShowWithRelations["movie"];
   theater: {
-    theaterDetails: Types.ObjectId | IThreater;
+    theaterDetails: ShowWithRelations["theater"];
     shows: Array<{
       _id: string;
       date: string;
@@ -17,69 +36,76 @@ type GroupedShow = {
   };
 };
 
+// Email validation
 export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
+// Generate seat layout
 export const generateSeatLayout = () => {
   return [
     {
       row: "E",
+      rowOrder: 0,
       type: "PREMIUM",
       price: 510,
       seats: Array.from({ length: 10 }, (_, i) => ({
         number: i + 1,
-        status: "AVAILABLE",
+        status: "AVAILABLE" as const,
       })),
     },
     {
       row: "D",
+      rowOrder: 1,
       type: "EXECUTIVE",
       price: 290,
       seats: Array.from({ length: 20 }, (_, i) => ({
         number: i + 1,
-        status: "AVAILABLE",
+        status: "AVAILABLE" as const,
       })),
     },
     {
       row: "C",
+      rowOrder: 2,
       type: "EXECUTIVE",
       price: 290,
       seats: Array.from({ length: 20 }, (_, i) => ({
         number: i + 1,
-        status: "AVAILABLE",
+        status: "AVAILABLE" as const,
       })),
     },
     {
       row: "B",
+      rowOrder: 3,
       type: "EXECUTIVE",
       price: 290,
       seats: Array.from({ length: 20 }, (_, i) => ({
         number: i + 1,
-        status: "AVAILABLE",
+        status: "AVAILABLE" as const,
       })),
     },
     {
       row: "A",
+      rowOrder: 4,
       type: "NORMAL",
       price: 180,
       seats: Array.from({ length: 20 }, (_, i) => ({
         number: i + 1,
-        status: "AVAILABLE",
+        status: "AVAILABLE" as const,
       })),
     },
   ];
 };
 
-// Grouping function
-export const groupShowsByTheatreAndMovie = (shows: IShow[]): GroupedShow[] => {
+// Group shows by theater and movie
+export const groupShowsByTheatreAndMovie = (
+  shows: ShowWithRelations[]
+): GroupedShow[] => {
   const grouped: Record<string, GroupedShow> = {};
 
   shows.forEach((show) => {
-    const movieId = show.movie._id;
-    const theatreId = show.theater._id;
-    const key = `${movieId}_${theatreId}`;
+    const key = `${show.movieId}_${show.theaterId}`;
 
     if (!grouped[key]) {
       grouped[key] = {
@@ -92,11 +118,11 @@ export const groupShowsByTheatreAndMovie = (shows: IShow[]): GroupedShow[] => {
     }
 
     grouped[key].theater.shows.push({
-      _id: show._id ?? "",
-      date: show.date ?? "",
-      startTime: show.startTime ?? "",
-      format: show.format ?? "",
-      audioType: show.audioType ?? "",
+      _id: show.id,
+      date: show.date,
+      startTime: show.startTime,
+      format: show.format,
+      audioType: show.audioType,
     });
   });
 
